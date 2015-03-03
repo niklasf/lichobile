@@ -35,11 +35,54 @@ module.exports = function(root, situations, ply) {
 
   this.jump = function(ply) {
     this.root.chessground.cancelMove();
-    if (this.situation().turnColor !== this.root.data.player.color) ply++;
     if (this.ply === ply || ply < 0 || ply >= this.situations.length) return;
     this.ply = ply;
     this.apply();
     engine.init(this.situation().fen);
+  }.bind(this);
+
+  var isWhite = function() {
+    return this.root.data.player.color === 'white';
+  }.bind(this);
+
+  var isMyTurn = function() {
+    return this.ply % 2 === (isWhite() ? 0 : 1);
+  }.bind(this);
+
+  var jumpDelay = function() {
+    return this.root.chessground.data.animation.duration + 20;
+  }.bind(this);
+
+  this.canBackward = function() {
+    return this.ply > (isWhite() ? 0 : 1);
+  }.bind(this);
+
+  this.canForward = function() {
+    return this.ply < (this.situations.length - (isWhite() ? 1 : 2));
+  }.bind(this);
+
+  var jumpTimeout;
+
+  this.backward = function() {
+    if (jumpTimeout) clearTimeout(jumpTimeout);
+    if (!canBackward()) return;
+    this.jump(this.ply - 1);
+    // if (isMyTurn()) return;
+    jumpTimeout = setTimeout(function() {
+      if (!canBackward()) return;
+      this.jump(this.ply - 1);
+    }.bind(this), jumpDelay());
+  }.bind(this);
+
+  this.forward = function() {
+    if (jumpTimeout) clearTimeout(jumpTimeout);
+    if (this.ply > this.situations.length - 1) return;
+    this.jump(this.ply + 1);
+    if (isMyTurn()) return;
+    jumpTimeout = setTimeout(function() {
+      if (this.ply > this.situations.length - 1) return;
+      this.jump(this.ply + 1);
+    }.bind(this), jumpDelay());
   }.bind(this);
 
   var forsyth = function(role) {

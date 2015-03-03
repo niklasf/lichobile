@@ -2,23 +2,15 @@ var utils = require('../../../utils');
 
 function renderBackwardButton(ctrl) {
   return m('button.game_action[data-icon=I]', {
-    config: utils.ontouchend(function() {
-      if (ctrl.ply > 1) ctrl.jump(ctrl.ply - 2);
-    }),
-    class: utils.classSet({
-      disabled: !(ctrl.ply > 1)
-    })
+    config: utils.ontouchend(ctrl.backward),
+    class: (ctrl.ply > 0) ? '' : 'disabled'
   });
 }
 
 function renderForwardButton(ctrl, nbMoves) {
   return m('button.game_action[data-icon=H]', {
-    config: utils.ontouchend(function() {
-      if (ctrl.ply < ctrl.situations.length - 2) ctrl.jump(ctrl.ply + 2);
-    }),
-    class: utils.classSet({
-      disabled: !(ctrl.ply < ctrl.situations.length - 2)
-    })
+    config: utils.ontouchend(ctrl.forward),
+    class: (ctrl.ply < ctrl.situations.length - 1) ? '' : 'disabled'
   });
 }
 
