@@ -39,6 +39,7 @@ module.exports = function(root, situations, ply) {
     this.ply = ply;
     this.apply();
     engine.init(this.situation().fen);
+    m.redraw();
   }.bind(this);
 
   var isWhite = function() {
@@ -64,23 +65,23 @@ module.exports = function(root, situations, ply) {
   var jumpTimeout;
 
   this.backward = function() {
-    if (jumpTimeout) clearTimeout(jumpTimeout);
-    if (!canBackward()) return;
+    clearTimeout(jumpTimeout);
+    if (!this.canBackward()) return;
     this.jump(this.ply - 1);
-    // if (isMyTurn()) return;
+    if (isMyTurn()) return;
     jumpTimeout = setTimeout(function() {
-      if (!canBackward()) return;
+      if (!this.canBackward()) return;
       this.jump(this.ply - 1);
     }.bind(this), jumpDelay());
   }.bind(this);
 
   this.forward = function() {
-    if (jumpTimeout) clearTimeout(jumpTimeout);
-    if (this.ply > this.situations.length - 1) return;
+    clearTimeout(jumpTimeout);
+    if (!this.canForward()) return;
     this.jump(this.ply + 1);
     if (isMyTurn()) return;
     jumpTimeout = setTimeout(function() {
-      if (this.ply > this.situations.length - 1) return;
+      if (!this.canForward()) return;
       this.jump(this.ply + 1);
     }.bind(this), jumpDelay());
   }.bind(this);
