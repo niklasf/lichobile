@@ -26,9 +26,14 @@ export default {
       args.variant ? args.variant.key : ''
     ].join(' ');
 
+    function boardConfig(el, isUpdate, ctx) {
+      var config = makeConfig(args);
+      if (ctx.ground) ctx.ground.set(config);
+      else ctx.ground = chessground(el, config);
+    }
+
     return (
-      <div className={boardClass}>
-        {chessground.view(new chessground.controller(makeConfig(args)))}
+      <div className={boardClass} config={boardConfig}>
       </div>
     );
   }
