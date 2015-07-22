@@ -1,6 +1,5 @@
 import * as utils from '../../utils';
 import i18n from '../../i18n';
-import { util } from 'chessground';
 import settings from '../../settings';
 import formWidgets from '../shared/form';
 import { renderEndedGameStatus } from '../shared/offlineRound';
@@ -16,7 +15,7 @@ function renderAlways(ctrl) {
       formWidgets.renderSelect('opponent', 'opponent', settings.ai.availableOpponents, settings.ai.opponent)
     )),
     m('button[data-icon=U]', {
-      config: helper.ontouch(utils.f(ctrl.root.initAs, util.opposite(d.player.color)))
+      config: helper.ontouch(utils.f(ctrl.root.initAs, utils.oppositeColor(d.player.color)))
     }, i18n('createAGame')),
     m('button.fa', {
       className: 'fa-share-alt',

@@ -1,4 +1,4 @@
-var util = require('chessground').util;
+import { util } from 'chessground-mobile';
 
 function capture(ctrl, key) {
   var exploding = [];
@@ -10,7 +10,7 @@ function capture(ctrl, key) {
       if (k) {
         exploding.push(k);
         var explodes = ctrl.chessground.data.pieces[k] && (
-          k === key || ctrl.chessground.data.pieces[k].role !== 'pawn')
+          k === key || ctrl.chessground.data.pieces[k].role !== 'pawn');
         if (explodes) diff[k] = null;
       }
     }

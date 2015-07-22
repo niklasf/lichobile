@@ -1,4 +1,4 @@
-var classSet = require('chessground').util.classSet;
+import { classSet } from '../../helper';
 import m from 'mithril';
 
 function prefixInteger(num, length) {

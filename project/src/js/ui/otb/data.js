@@ -1,5 +1,5 @@
 var Chess = require('chess.js').Chess;
-var opposite = require('chessground').util.opposite;
+var opposite = require('chessground-mobile').util.opposite;
 
 module.exports = function(cfg) {
 

@@ -814,10 +814,10 @@
       "from": "git://github.com/veloce/chess.js.git#v0.9.2",
       "resolved": "git://github.com/veloce/chess.js.git#1ea95e1d00066a833c2fd96a153808ba50cd6dd1"
     },
-    "chessground": {
-      "version": "2.1.0",
-      "from": "git://github.com/ornicar/chessground.git#mobile",
-      "resolved": "git://github.com/ornicar/chessground.git#fee7e6b0ba3bdbb56b6e206ef5e1e7b3352364da",
+    "chessground-mobile": {
+      "version": "3.0.0",
+      "from": "git://github.com/veloce/chessground-mobile.git#experiments",
+      "resolved": "git://github.com/veloce/chessground-mobile.git#dabdfb21f79e72fc8c9ee383beb679d6a54a8080",
       "dependencies": {
         "merge": {
           "version": "1.2.0",
