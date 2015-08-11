@@ -22,8 +22,6 @@
     background-color rgba(155, 199, 0, 0.41)
   &.check
     background radial-gradient(ellipse at center, rgba(255, 0, 0, 1) 0%, rgba(231, 0, 0, 1) 25%, rgba(169, 0, 0, 0) 89%, rgba(158, 0, 0, 0) 100%)
-  &.fading
-    z-index 1
 
 .cg-square[data-coord-x]::after
   position absolute
@@ -54,6 +52,8 @@
   background-size cover
   z-index 3
   transform translate3d(0,0,0)
+  &.fading
+    z-index 1
   &.dragging
     width 200%
     height 200%
