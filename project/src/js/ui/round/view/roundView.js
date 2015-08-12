@@ -328,7 +328,7 @@ function renderGamePopup(ctrl) {
     'player_controls',
     helper.isPortrait() ? gameInfos(ctrl.data) : null,
     gameApi.playable(ctrl.data) ?
-      renderGameRunningActions(ctrl) : renderGameEndedActions(ctrl),
+      renderGameRunningActions.bind(undefined, ctrl) : renderGameEndedActions.bind(undefined, ctrl),
     ctrl.vm.showingActions,
     ctrl.hideActions
   );
