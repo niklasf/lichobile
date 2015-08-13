@@ -18,26 +18,33 @@ var forsyth = function(role) {
   return role === 'knight' ? 'n' : role[0];
 };
 
-export default {
-  init: function(fen) {
-    garbo.reset();
-    garbo.setFen(fen);
-  },
-  setLevel: function(l) {
-    level = l;
-    garbo.setMoveTime(levels[level][0]);
-  },
-  addMove: function(origKey, destKey, promotionRole) {
-    var move = origKey + destKey + (promotionRole ? forsyth(promotionRole) : '');
-    garbo.addMove(garbo.getMoveFromString(move));
-  },
-  search: function(then) {
-    garbo.search(function(bestMove) {
-      if (bestMove === 0) return;
-      var str = garbo.formatMove(bestMove);
-      var move = [str.slice(0, 2), str.slice(2, 4), str[4]];
-      then(move);
-    }, levels[level][1], null);
-  },
-  getFen: garbo.getFen
+module.exports = function(self) {
+  self.onmessage = function (e) {
+    if (e.data.action === 'init') {
+      garbo.reset();
+      garbo.setFen(e.data.fen);
+    }
+
+    if (e.data.action === 'setLevel') {
+      level = e.data.level;
+      garbo.setMoveTime(levels[level][0]);
+    }
+
+    if (e.data.action === 'addMove') {
+      let { origKey, destKey, promotionRole } = e.data;
+      let move = origKey + destKey + (promotionRole ? forsyth(promotionRole) : '');
+      garbo.addMove(garbo.getMoveFromString(move));
+      self.postMessage({ fen: garbo.getFen() });
+    }
+
+    if (e.data.action === 'search') {
+      garbo.search(function(bestMove) {
+        if (bestMove === 0) return;
+        let str = garbo.formatMove(bestMove);
+        let move = [str.slice(0, 2), str.slice(2, 4), str[4]];
+        self.postMessage({ move });
+      }, levels[level][1], null);
+    }
+
+  };
 };
