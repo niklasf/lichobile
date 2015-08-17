@@ -24,7 +24,7 @@ export default function controller(cfg) {
 
   var onPromotion = function(orig, dest, role) {
     this.replay.addMove(orig, dest, role);
-  };
+  }.bind(this);
 
   var userMove = function(orig, dest) {
     if (!promotion.start(this, orig, dest, onPromotion)) {
@@ -43,6 +43,7 @@ export default function controller(cfg) {
     save();
     m.redraw();
     if (this.replay.situation().finished) setTimeout(function() {
+      this.chessground.stop();
       this.actions.open();
       m.redraw();
     }.bind(this), 1000);
