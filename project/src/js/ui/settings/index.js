@@ -10,6 +10,7 @@ import m from 'mithril';
 function renderBody() {
   return [
     m('ul.settings_list.general.native_scroller.page', [
+      m('li.list_item', formWidgets.renderCheckbox(i18n('boardCoordinates'), 'coords', settings.general.coords)),
       m('li.list_item', formWidgets.renderCheckbox(i18n('pieceAnimation'), 'animations',
         settings.general.animations)),
       m('li.list_item', formWidgets.renderCheckbox(i18n('pieceDestinations'), 'pieceDestinations',
