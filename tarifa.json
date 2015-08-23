@@ -75,6 +75,12 @@
       "stage": {
         "extend": "stage"
       },
+      "newground": {
+        "extend": "stage",
+        "id": "org.lichess.mobileapp.newground",
+        "product_name": "lichess_newground",
+        "product_file_name": "lichess-newground"
+      },
       "prod": {
         "extend": "prod",
         "version_code": "200101",
