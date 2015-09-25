@@ -6,9 +6,13 @@ import replayCtrl from '../shared/offlineRound/replayCtrl';
 import storage from '../../storage';
 import settings from '../../settings';
 import actions from './actions';
-import work from 'webworkify';
 import helper from '../helper';
+import engine from './engine';
 import m from 'mithril';
+
+function forsyth(role) {
+  return role === 'knight' ? 'n' : role[0];
+}
 
 export default function controller() {
 
@@ -20,19 +24,6 @@ export default function controller() {
     aiSearching: false
   };
 
-  var engineWorker = work(require('./engine'));
-  engineWorker.onmessage = function(e) {
-    const { move, fen } = e.data;
-    if (move) {
-      this.chessground.apiMove(move[0], move[1]);
-      addMove(move[0], move[1], move[2]);
-      this.vm.aiSearching = false;
-      m.redraw();
-    } else if (fen) {
-      this.data.game.fen = fen;
-    }
-  }.bind(this);
-
   var save = function() {
     storage.set(storageKey, {
       data: this.data,
@@ -43,7 +34,8 @@ export default function controller() {
 
   var addMove = function(orig, dest, promotionRole) {
     this.replay.addMove(orig, dest, promotionRole);
-    engineWorker.postMessage({ action: 'addMove', origKey: orig, destKey: dest, promotionRole });
+    const move = orig + dest + (promotionRole ? forsyth(promotionRole) : '');
+    engine.addMove(move);
   }.bind(this);
 
   this.getOpponent = function() {
@@ -61,8 +53,9 @@ export default function controller() {
       this.vm.aiSearching = true;
       m.redraw();
       setTimeout(function() {
-        engineWorker.postMessage({ action: 'setLevel', level: this.getOpponent().level});
-        engineWorker.postMessage({ action: 'search' });
+        engine.search(function(res) {
+          console.log(res);
+        });
       }.bind(this), 500);
     }
   }.bind(this);
@@ -107,7 +100,7 @@ export default function controller() {
     this.replay.apply();
     if (this.actions) this.actions.close();
     else this.actions = new actions.controller(this);
-    engineWorker.postMessage({ action: 'init', fen: this.data.game.fen });
+    engine.init(this.data.game.fen);
     engineMove();
   }.bind(this);
 
@@ -123,7 +116,7 @@ export default function controller() {
     if (this.replay.ply === ply || ply < 0 || ply >= this.replay.situations.length) return;
     this.replay.ply = ply;
     this.replay.apply();
-    engineWorker.postMessage({ action: 'init', fen: this.replay.situation().fen });
+    engine.init(this.replay.situation().fen);
   }.bind(this);
 
   this.forward = function() {
