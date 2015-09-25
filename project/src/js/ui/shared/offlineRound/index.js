@@ -16,7 +16,7 @@ export function renderAntagonist(ctrl, playerName, material, position) {
   return m('section.antagonist', {
     className: position, key, style
   }, [
-    m('div.antagonistInfos offline', [
+    m('div.antagonistInfos.offline', [
       m('h2', playerName),
       m('div.ratingAndMaterial', renderMaterial(material))
     ])
@@ -104,7 +104,7 @@ function renderBackwardButton(ctrl) {
   return m('button.game_action[data-icon=I]', {
     config: helper.ontouch(ctrl.backward, () => ctrl.jump(ctrl.firstPly())),
     className: helper.classSet({
-      disabled: !(ctrl.replay.ply > ctrl.firstPly())
+      disabled: ctrl.vm.aiSearching || !(ctrl.replay.ply > ctrl.firstPly())
     })
   });
 }
@@ -113,7 +113,7 @@ function renderForwardButton(ctrl) {
   return m('button.game_action[data-icon=H]', {
     config: helper.ontouch(ctrl.forward, () => ctrl.jump(ctrl.replay.situations.length - 1)),
     className: helper.classSet({
-      disabled: !(ctrl.replay.ply < ctrl.replay.situations.length - 1)
+      disabled: ctrl.vm.aiSearching || !(ctrl.replay.ply < ctrl.replay.situations.length - 1)
     })
   });
 }

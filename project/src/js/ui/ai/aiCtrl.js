@@ -6,7 +6,7 @@ import replayCtrl from '../shared/offlineRound/replayCtrl';
 import storage from '../../storage';
 import settings from '../../settings';
 import actions from './actions';
-import engine from './engine';
+import work from 'webworkify';
 import helper from '../helper';
 import m from 'mithril';
 
@@ -15,6 +15,23 @@ export default function controller() {
  helper.analyticsTrackView('Offline AI');
 
   var storageKey = 'ai.current';
+
+  this.vm = {
+    aiSearching: false
+  };
+
+  var engineWorker = work(require('./engine'));
+  engineWorker.onmessage = function(e) {
+    const { move, fen } = e.data;
+    if (move) {
+      this.chessground.apiMove(move[0], move[1]);
+      addMove(move[0], move[1], move[2]);
+      this.vm.aiSearching = false;
+      m.redraw();
+    } else if (fen) {
+      this.data.game.fen = fen;
+    }
+  }.bind(this);
 
   var save = function() {
     storage.set(storageKey, {
@@ -26,8 +43,7 @@ export default function controller() {
 
   var addMove = function(orig, dest, promotionRole) {
     this.replay.addMove(orig, dest, promotionRole);
-    engine.addMove(orig, dest, promotionRole);
-    this.data.game.fen = engine.getFen();
+    engineWorker.postMessage({ action: 'addMove', origKey: orig, destKey: dest, promotionRole });
   }.bind(this);
 
   this.getOpponent = function() {
@@ -41,13 +57,14 @@ export default function controller() {
   };
 
   var engineMove = function() {
-    if (this.chessground.data.turnColor !== this.data.player.color) setTimeout(function() {
-      engine.setLevel(this.getOpponent().level);
-      engine.search(function(move) {
-        this.chessground.apiMove(move[0], move[1]);
-        addMove(move[0], move[1], move[2]);
-      }.bind(this));
-    }.bind(this), 500);
+    if (this.chessground.data.turnColor !== this.data.player.color) {
+      this.vm.aiSearching = true;
+      m.redraw();
+      setTimeout(function() {
+        engineWorker.postMessage({ action: 'setLevel', level: this.getOpponent().level});
+        engineWorker.postMessage({ action: 'search' });
+      }.bind(this), 500);
+    }
   }.bind(this);
 
   var onPromotion = function(orig, dest, role) {
@@ -90,7 +107,7 @@ export default function controller() {
     this.replay.apply();
     if (this.actions) this.actions.close();
     else this.actions = new actions.controller(this);
-    engine.init(this.data.game.fen);
+    engineWorker.postMessage({ action: 'init', fen: this.data.game.fen });
     engineMove();
   }.bind(this);
 
@@ -101,11 +118,12 @@ export default function controller() {
   }.bind(this);
 
   this.jump = function(ply) {
+    if (this.vm.aiSearching) return;
     this.chessground.cancelMove();
     if (this.replay.ply === ply || ply < 0 || ply >= this.replay.situations.length) return;
     this.replay.ply = ply;
     this.replay.apply();
-    engine.init(this.replay.situation().fen);
+    engineWorker.postMessage({ action: 'init', fen: this.replay.situation().fen });
   }.bind(this);
 
   this.forward = function() {
