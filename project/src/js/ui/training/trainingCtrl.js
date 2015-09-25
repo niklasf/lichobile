@@ -5,13 +5,17 @@ import data from './data';
 import chess from './chess';
 import puzzle from './puzzle';
 import sound from '../../sound';
-import actions from './actions';
 import settings from '../../settings';
 import menu from './menu';
 import * as xhr from './xhr';
 import m from 'mithril';
+import helper from '../helper';
+import socket from '../../socket';
 
 export default function ctrl() {
+
+  helper.analyticsTrackView('Puzzle');
+  socket.createDefault();
 
   this.data = null;
 
@@ -158,8 +162,6 @@ export default function ctrl() {
 
   this.init = function(cfg) {
     this.data = data(cfg);
-    if (this.actions) this.actions.close();
-    else this.actions = new actions.controller(this);
     var chessgroundConf = {
       fen: this.data.puzzle.fen,
       orientation: this.data.puzzle.color,
@@ -205,4 +207,12 @@ export default function ctrl() {
   };
 
   this.newPuzzle();
+
+  window.plugins.insomnia.keepAwake();
+
+  this.onunload = function() {
+    socket.destroy();
+    window.plugins.insomnia.allowSleepAgain();
+  };
+
 }
