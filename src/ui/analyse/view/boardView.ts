@@ -1,5 +1,7 @@
 import h from 'mithril/hyperscript'
 import * as chessFormat from '../../../utils/chessFormat'
+import { parseUci, makeSquare } from 'chessops/util'
+import { isDrop } from 'chessops/types'
 import gameStatusApi from '../../../lichess/status'
 import { findTag, gameResult } from '../../../lichess/interfaces/study'
 import Board from '../../shared/Board'
@@ -105,9 +107,10 @@ function renderCheckCount(whitePov: boolean, checkCount: { white: number, black:
   return h('div.analyse-checkCount', whitePov ? [w, b] : [b, w])
 }
 
-function moveOrDropShape(uci: string, brush: string, player: Color): Shape[] {
-  if (uci.includes('@')) {
-    const pos = chessFormat.uciToDropPos(uci)
+function moveOrDropShape(uci: Uci, brush: string, player: Color): Shape[] {
+  const move = parseUci(uci)!;
+  if (isDrop(move)) {
+    const pos = makeSquare(move.to)
     return [
       {
         brush,
@@ -116,25 +119,23 @@ function moveOrDropShape(uci: string, brush: string, player: Color): Shape[] {
       {
         orig: pos,
         piece: {
-          role: chessFormat.uciToDropRole(uci),
+          role: move.role,
           color: player
         },
         brush
       }
     ]
   } else {
-    const move = chessFormat.uciToMove(uci)
-    const prom = chessFormat.uciToProm(uci)
     const shapes: Shape[] = [{
       brush,
-      orig: move[0],
-      dest: move[1]
+      orig: makeSquare(move.from),
+      dest: makeSquare(move.to)
     }]
-    if (prom) shapes.push({
+    if (move.promotion) shapes.push({
       brush,
-      orig: move[1],
+      orig: makeSquare(move.to),
       piece: {
-        role: prom,
+        role: move.promotion,
         color: player
       }
     })

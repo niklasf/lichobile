@@ -2,6 +2,8 @@ import { Plugins } from '@capacitor/core'
 import i18n from '../../i18n'
 import Chessground from '../../chessground/Chessground'
 import router from '../../router'
+import { parseUci, makeSquare } from 'chessops/util'
+import { isDrop } from 'chessops/types'
 import * as chess from '../../chess'
 import * as chessFormat from '../../utils/chessFormat'
 import sound from '../../sound'
@@ -214,22 +216,20 @@ export default class AiRound implements AiRoundInterface, PromotingInterface {
     return this.data.player.color
   }
 
-  public onEngineMove = (bestmove: string) => {
-    const from = <Key>bestmove.slice(0, 2)
-    const to = <Key>bestmove.slice(2, 4)
+  public onEngineUci = (uci: Uci) => {
     this.vm.engineSearching = false
-    this.chessground.apiMove(from, to)
-    this.replay.addMove(from, to)
-    redraw()
-  }
-
-  public onEngineDrop = (bestdrop: string) => {
-    const pos = chessFormat.uciToDropPos(bestdrop)
-    const role = chessFormat.uciToDropRole(bestdrop)
-    const piece = { role, color: this.data.opponent.color }
-    this.vm.engineSearching = false
-    this.chessground.apiNewPiece(piece, pos)
-    this.replay.addDrop(role, pos)
+    const move = parseUci(uci)!;
+    if (isDrop(move)) {
+      const pos = makeSquare(move.to)
+      const piece = { role: move.role, color: this.data.opponent.color }
+      this.chessground.apiNewPiece(piece, pos)
+      this.replay.addDrop(move.role, pos)
+    } else {
+      const from = makeSquare(move.from)
+      const to = makeSquare(move.to)
+      this.chessground.apiMove(from, to)
+      this.replay.addMove(from, to)
+    }
     redraw()
   }
 

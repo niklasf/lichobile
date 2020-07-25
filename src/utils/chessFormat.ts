@@ -1,30 +1,5 @@
 import isObject from 'lodash-es/isObject'
 
-const uciRoleMap: {[k: string]: Role } = {
-  P: 'pawn',
-  B: 'bishop',
-  N: 'knight',
-  R: 'rook',
-  Q: 'queen',
-  p: 'pawn',
-  b: 'bishop',
-  n: 'knight',
-  r: 'rook',
-  q: 'queen',
-}
-
-export interface SanToRole {
-  [san: string]: Role
-}
-
-export const sanToRole: SanToRole = {
-  P: 'pawn',
-  N: 'knight',
-  B: 'bishop',
-  R: 'rook',
-  Q: 'queen'
-}
-
 export const altCastles: StringMap = {
   e1a1: 'e1c1',
   e1h1: 'e1g1',
@@ -41,29 +16,16 @@ export function uciToMoveOrDrop(uci: string): KeyPair {
   return [<Key>uci.substr(0, 2), <Key>uci.substr(2, 2)]
 }
 
-export function uciToProm(uci: string): Role | undefined {
-  const p = uci.substr(4, 1)
-  return uciRoleMap[p]
-}
-
 export function uciToDropPos(uci: string): Key {
   return <Key>uci.substr(2, 2)
 }
 
-export function uciToDropRole(uci: string): Role {
-  return uciRoleMap[uci.substr(0, 1)]
-}
-
-export function uciTolastDrop(uci: string): KeyPair {
+export function uciToLastDrop(uci: string): KeyPair {
   return [<Key>uci.substr(2, 2), <Key>uci.substr(2, 2)]
 }
 
 export function fixCrazySan(san: San): San {
   return san[0] === 'P' ? san.slice(1) : san
-}
-
-export function decomposeUci(uci: Uci): [Key, Key, SanChar] {
-  return [<Key>uci.slice(0, 2), <Key>uci.slice(2, 4), <SanChar>uci.slice(4, 5)]
 }
 
 function isString(o: DestsMap | string): o is string {

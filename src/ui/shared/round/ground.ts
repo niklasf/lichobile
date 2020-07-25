@@ -17,7 +17,7 @@ function makeConfig(data: OnlineGameData, fen: string, flip: boolean = false): c
       lastStep &&
       lastStep.uci !== null
     ) ?
-      chessFormat.uciTolastDrop(lastStep.uci) :
+      chessFormat.uciToLastDrop(lastStep.uci) :
       null
 
   const pieceMoveConf = settings.game.pieceMove()

@@ -2,6 +2,8 @@ import { Plugins } from '@capacitor/core'
 import debounce from 'lodash-es/debounce'
 import router from '../../router'
 import { formatDateTime } from '../../i18n'
+import { isDrop } from 'chessops/types'
+import { parseUci, makeSquare } from 'chessops/util';
 import Chessground from '../../chessground/Chessground'
 import * as cg from '../../chessground/interfaces'
 import * as chess from '../../chess'
@@ -434,17 +436,14 @@ export default class AnalyseCtrl {
   }
 
   playUci = (uci: Uci): void => {
-    const move = chessFormat.decomposeUci(uci)
-    if (uci[1] === '@') {
+    const move = parseUci(uci)!;
+    if (isDrop(move)) {
       this.chessground.apiNewPiece({
         color: this.chessground.state.movable.color as Color,
-        role: chessFormat.sanToRole[uci[0]]
-      }, move[1])
-    } else if (!move[2]) {
-      this.sendMove(move[0], move[1])
-    }
-    else {
-      this.sendMove(move[0], move[1], chessFormat.sanToRole[move[2].toUpperCase()])
+        role: move.role,
+      }, makeSquare(move.to))
+    } else {
+      this.sendMove(makeSquare(move.from), makeSquare(move.to), move.promotion)
     }
     this.explorer.loading(true)
   }
